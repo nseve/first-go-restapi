@@ -15,12 +15,12 @@ func NewProjectService(repo *repository.ProjectRepository) *ProjectService {
 	return &ProjectService{repo: repo}
 }
 
-func (s *ProjectService) Create(title string) (*models.Project, error) {
+func (s *ProjectService) Create(title string, userID uint) (*models.Project, error) {
 	if title == "" {
 		return nil, errors.New("title is required")
 	}
 
-	project := &models.Project{Title: title}
+	project := &models.Project{Title: title, UserID: userID}
 
 	if err := s.repo.Create(project); err != nil {
 		return nil, err
@@ -29,33 +29,33 @@ func (s *ProjectService) Create(title string) (*models.Project, error) {
 	return project, nil
 }
 
-func (s *ProjectService) GetByID(id uint) (*models.Project, error) {
-	return s.repo.GetByID(id)
+func (s *ProjectService) GetByID(id, userID uint) (*models.Project, error) {
+	return s.repo.GetByID(id, userID)
 }
 
-func (s *ProjectService) GetAll() ([]models.Project, error) {
-	return s.repo.GetAll()
+func (s *ProjectService) GetAll(userID uint) ([]models.Project, error) {
+	return s.repo.GetAll(userID)
 }
 
-func (s *ProjectService) Update(id uint, title string) (*models.Project, error) {
+func (s *ProjectService) Update(id, userID uint, title string) (*models.Project, error) {
 	if title == "" {
 		return nil, errors.New("title is required")
 	}
 
-	project, err := s.repo.GetByID(id)
+	project, err := s.repo.GetByID(id, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	project.Title = title
 
-	if err := s.repo.Update(project); err != nil {
+	if err := s.repo.Update(project, userID); err != nil {
 		return nil, err
 	}
 
 	return project, nil
 }
 
-func (s *ProjectService) Delete(id uint) error {
-	return s.repo.Delete(id)
+func (s *ProjectService) Delete(id, userID uint) error {
+	return s.repo.Delete(id, userID)
 }

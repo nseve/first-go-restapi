@@ -22,7 +22,7 @@ func NewTaskService(
 	}
 }
 
-func (s *TaskService) Create(projectID uint, title string, duration int) (*models.Task, error) {
+func (s *TaskService) Create(projectID, userID uint, title string, duration int) (*models.Task, error) {
 	if title == "" {
 		return nil, errors.New("title is required")
 	}
@@ -31,7 +31,7 @@ func (s *TaskService) Create(projectID uint, title string, duration int) (*model
 		return nil, errors.New("duration must be positive")
 	}
 
-	_, err := s.projectRepo.GetByID(projectID)
+	_, err := s.projectRepo.GetByID(projectID, userID)
 	if err != nil {
 		return nil, errors.New("project not found")
 	}

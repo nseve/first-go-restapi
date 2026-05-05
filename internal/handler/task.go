@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/nseve/first-go-restapi/internal/middleware"
 	"github.com/nseve/first-go-restapi/internal/response"
 	"github.com/nseve/first-go-restapi/internal/service"
 )
@@ -19,6 +20,12 @@ func NewTaskHandler(s *service.TaskService) *TaskHandler {
 }
 
 func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		response.WriteError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
 	projectIDStr := chi.URLParam(r, "projectId")
 
 	projectID, err := strconv.Atoi(projectIDStr)
@@ -37,7 +44,7 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.service.Create(uint(projectID), req.Title, req.Duration)
+	task, err := h.service.Create(uint(projectID), userID, req.Title, req.Duration)
 	if err != nil {
 		response.WriteError(w, http.StatusBadRequest, err.Error())
 		return
