@@ -2,12 +2,12 @@ FROM golang:1.25-alpine
 
 WORKDIR /app
 
-RUN go install github.com/air-verse/air@latest
-
 COPY go.* ./
 
 RUN go mod download
 
 COPY . .
 
-CMD ["air"]
+RUN go build -o app ./cmd/app
+
+CMD ["./app"]

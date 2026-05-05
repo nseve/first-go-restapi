@@ -6,5 +6,9 @@ import (
 )
 
 func RunMigrations(db *gorm.DB) error {
-	return db.AutoMigrate(&models.Project{}, &models.Task{})
+	return db.AutoMigrate(
+		&models.Project{},
+		&models.Task{},
+		&models.User{},
+	)
 }

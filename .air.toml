@@ -2,10 +2,9 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-cmd = "go build -o tmp/app ./cmd/app"
-bin = "tmp/app"
-include_ext = ["go"]
-exclude_dir = ["tmp", "vendor"]
-
-[log]
-time = true
+  cmd = "go build -o ./tmp/main.exe ./cmd/app"
+  bin = "tmp\\main.exe"
+  entrypoint = ["tmp\\main.exe"]
+  delay = 1000
+  include_ext = ["go", "html", "css"]
+  exclude_dir = ["tmp", "vendor"]
