@@ -37,22 +37,34 @@ func (s *TaskService) Create(projectID, userID uint, title string, duration int)
 	}
 
 	task := &models.Task{Title: title, Duration: duration, ProjectID: projectID}
-	if err := s.taskRepo.Create(task); err != nil {
+	if err := s.taskRepo.Create(task, userID); err != nil {
 		return nil, err
 	}
 
 	return task, nil
 }
 
-func (s *TaskService) GetByID(id uint) (*models.Task, error) {
-	return s.taskRepo.GetByID(id)
+func (s *TaskService) GetByID(id, userID uint) (*models.Task, error) {
+	if id == 0 {
+		return nil, errors.New("Invalid task id")
+	}
+
+	return s.taskRepo.GetByID(id, userID)
 }
 
-func (s *TaskService) GetByProjectID(projectID uint) ([]models.Task, error) {
-	return s.taskRepo.GetByProjectID(projectID)
+func (s *TaskService) GetByProjectID(projectID, userID uint) ([]models.Task, error) {
+	if projectID == 0 {
+		return nil, errors.New("invaild project id")
+	}
+
+	return s.taskRepo.GetByProjectID(projectID, userID)
 }
 
-func (s *TaskService) Update(id uint, title string, duration int) (*models.Task, error) {
+func (s *TaskService) Update(id, userID uint, title string, duration int) (*models.Task, error) {
+	if id == 0 {
+		return nil, errors.New("invalid task id")
+	}
+
 	if title == "" {
 		return nil, errors.New("title is required")
 	}
@@ -61,7 +73,7 @@ func (s *TaskService) Update(id uint, title string, duration int) (*models.Task,
 		return nil, errors.New("duration must be positive")
 	}
 
-	task, err := s.taskRepo.GetByID(id)
+	task, err := s.taskRepo.GetByID(id, userID)
 	if err != nil {
 		return nil, errors.New("task not found")
 	}
@@ -69,13 +81,13 @@ func (s *TaskService) Update(id uint, title string, duration int) (*models.Task,
 	task.Title = title
 	task.Duration = duration
 
-	if err := s.taskRepo.Update(task); err != nil {
+	if err := s.taskRepo.Update(task, userID); err != nil {
 		return nil, err
 	}
 
 	return task, nil
 }
 
-func (s *TaskService) Delete(id uint) error {
-	return s.taskRepo.Delete(id)
+func (s *TaskService) Delete(id, userID uint) error {
+	return s.taskRepo.Delete(id, userID)
 }

@@ -13,13 +13,28 @@ func NewTaskRepository(db *gorm.DB) *TaskRepository {
 	return &TaskRepository{db: db}
 }
 
-func (r *TaskRepository) Create(task *models.Task) error {
+func (r *TaskRepository) Create(task *models.Task, userID uint) error {
+	var project models.Project
+
+	err := r.db.
+		Where("id = ? AND user_id = ?", task.ProjectID, userID).
+		First(&project).Error
+
+	if err != nil {
+		return err
+	}
+
 	return r.db.Create(task).Error
 }
 
-func (r *TaskRepository) GetByID(id uint) (*models.Task, error) {
+func (r *TaskRepository) GetByID(id, userID uint) (*models.Task, error) {
 	var task models.Task
-	err := r.db.First(&task, id).Error
+
+	err := r.db.
+		Joins("JOIN projects ON projects.id = tasks.project_id").
+		Where("tasks.id = ? AND projects.user_id = ?", id, userID).
+		First(&task).Error
+
 	if err != nil {
 		return nil, err
 	}
@@ -27,17 +42,46 @@ func (r *TaskRepository) GetByID(id uint) (*models.Task, error) {
 	return &task, nil
 }
 
-func (r *TaskRepository) GetByProjectID(projectID uint) ([]models.Task, error) {
+func (r *TaskRepository) GetByProjectID(projectID, userID uint) ([]models.Task, error) {
 	var tasks []models.Task
 
-	err := r.db.Where("project_id = ?", projectID).Find(&tasks).Error
+	err := r.db.
+		Joins("JOIN projects ON projects.id = tasks.project_id").
+		Where("project_id = ? AND projects.user_id = ?", projectID, userID).
+		Find(&tasks).Error
+
 	return tasks, err
 }
 
-func (r *TaskRepository) Update(task *models.Task) error {
-	return r.db.Save(task).Error
+func (r *TaskRepository) Update(updated *models.Task, userID uint) error {
+	var task models.Task
+
+	err := r.db.
+		Joins("JOIN projects ON projects.id = tasks.project_id").
+		Where("tasks.id = ? AND projects.user_id = ?", updated.ID, userID).
+		First(&task).Error
+
+	if err != nil {
+		return err
+	}
+
+	task.Title = updated.Title
+	task.Duration = updated.Duration
+
+	return r.db.Save(&task).Error
 }
 
-func (r *TaskRepository) Delete(id uint) error {
-	return r.db.Delete(&models.Task{}, id).Error
+func (r *TaskRepository) Delete(id, userID uint) error {
+	var task models.Task
+
+	err := r.db.
+		Joins("JOIN projects ON projects.id = tasks.project_id").
+		Where("tasks.id = ? AND projects.user_id = ?", id, userID).
+		First(&task).Error
+
+	if err != nil {
+		return err
+	}
+
+	return r.db.Delete(&task).Error
 }
