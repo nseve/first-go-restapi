@@ -28,5 +28,13 @@ services:
       DB_NAME: project_manager
       JWT_SECRET: supersecret
 
+  frontend:
+    build: ./frontend
+    container_name: project_manager_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - app
+
 volumes:
   pgdata:
