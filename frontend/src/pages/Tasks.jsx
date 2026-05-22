@@ -24,6 +24,7 @@ export default function Tasks({ token, project, onBack }) {
   const load = async () => {
     try {
       const data = await getTasks(token, project.id);
+      setError("");
       setTasks(data);
     } catch (err) {
       setError(err.message);
@@ -75,7 +76,6 @@ export default function Tasks({ token, project, onBack }) {
 
   const handleSearch = async () => {
     if (!searchId) {
-      setError("");
       load();
       return;
     }
@@ -93,7 +93,6 @@ export default function Tasks({ token, project, onBack }) {
         throw new Error(data.error);
       }
 
-      setError("");
       setTasks([data]);
     } catch (err) {
       setError(err.message);
@@ -179,7 +178,7 @@ export default function Tasks({ token, project, onBack }) {
                       setEditingDuration(t.duration);
                     }}
                   >
-                    ✏️
+                    Edit
                   </button>
                 </>
               )}
@@ -189,7 +188,7 @@ export default function Tasks({ token, project, onBack }) {
       </ul>
 
       <button className="danger" onClick={handleDelete}>
-        Delete selected task
+        Delete
       </button>
     </div>
   );

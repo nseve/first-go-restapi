@@ -35,22 +35,24 @@ export default function Auth({ onLogin }) {
     <div className="container">
       <h2>{isLogin ? "Login" : "Register"}</h2>
 
-      <input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      <div className="form">
+        <input
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-      <button onClick={handleSubmit}>
-        {isLogin ? "Login" : "Register"}
-      </button>
+        <button onClick={handleSubmit}>
+          {isLogin ? "Login" : "Register"}
+        </button>
+      </div>
 
       <p className="switch-text">
         {isLogin ? "No account?" : "Already have an account?"}

@@ -21,6 +21,7 @@ export default function Projects({ token, onLogout }) {
   const load = async () => {
     try {
       const data = await getProjects(token);
+      setError("");
       setProjects(data);
     } catch (err) {
       setError(err.message);
@@ -66,7 +67,6 @@ export default function Projects({ token, onLogout }) {
 
   const handleSearch = async () => {
     if (!searchId) {
-      setError("");
       load();
       return;
     }
@@ -84,7 +84,6 @@ export default function Projects({ token, onLogout }) {
         throw new Error(data.error);
       }
 
-      setError("");
       setProjects([data]);
     } catch (err) {
       setError(err.message);
@@ -103,11 +102,13 @@ export default function Projects({ token, onLogout }) {
 
   return (
     <div className="container">
-      <h2>Projects</h2>
+      <div className="header">
+        <h2>Projects</h2>
 
-      <button className="logout" onClick={onLogout}>
-        Logout
-      </button>
+        <button className="logout" onClick={onLogout}>
+          Logout
+        </button>
+      </div>
 
       <div className="form">
         <input
@@ -155,19 +156,32 @@ export default function Projects({ token, onLogout }) {
                 </>
               ) : (
                 <>
-                  <span onClick={() => setSelectedProject(p)}>
-                    #{p.id} — {p.title}
-                  </span>
-
-                  <button
-                    className="small"
-                    onClick={() => {
-                      setEditingId(p.id);
-                      setEditingTitle(p.title);
-                    }}
+                  <div
+                    className="project-info"
+                    onClick={() => setSelectedProjectId(p.id)}
                   >
-                    ✏️
-                  </button>
+                    <span>
+                      #{p.id} — {p.title}
+                    </span>
+                  </div>
+
+                  <div className="actions">
+                    <button
+                      className="small"
+                      onClick={() => setSelectedProject(p)}
+                    >
+                      Open
+                    </button>
+                    <button
+                      className="small"
+                      onClick={() => {
+                        setEditingId(p.id);
+                        setEditingTitle(p.title);
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </div>
                 </>
               )}
             </div>
@@ -176,7 +190,7 @@ export default function Projects({ token, onLogout }) {
       </ul>
 
       <button className="danger" onClick={handleDelete}>
-        Delete selected project
+        Delete
       </button>
     </div>
   );
