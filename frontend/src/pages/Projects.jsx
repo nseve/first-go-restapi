@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+
+import { useNavigate } from "react-router-dom";
+
 import {
   getProjects,
   createProject,
@@ -6,21 +9,28 @@ import {
   deleteProject,
 } from "../api";
 
-import Tasks from "./Tasks";
-
 export default function Projects({ token, onLogout }) {
+  const navigate = useNavigate();
+
   const [projects, setProjects] = useState([]);
+
   const [title, setTitle] = useState("");
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedProjectId, setSelectedProjectId] = useState(null);
+
+  const [selectedProjectId, setSelectedProjectId] =
+    useState(null);
+
   const [editingId, setEditingId] = useState(null);
-  const [editingTitle, setEditingTitle] = useState("");
+  const [editingTitle, setEditingTitle] =
+    useState("");
+
   const [searchId, setSearchId] = useState("");
+
   const [error, setError] = useState("");
 
   const load = async () => {
     try {
       const data = await getProjects(token);
+
       setError("");
       setProjects(data);
     } catch (err) {
@@ -35,7 +45,9 @@ export default function Projects({ token, onLogout }) {
   const handleCreate = async () => {
     try {
       await createProject(token, title);
+
       setTitle("");
+
       load();
     } catch (err) {
       setError(err.message);
@@ -45,8 +57,10 @@ export default function Projects({ token, onLogout }) {
   const handleUpdate = async (id) => {
     try {
       await updateProject(token, id, editingTitle);
+
       setEditingId(null);
       setEditingTitle("");
+
       load();
     } catch (err) {
       setError(err.message);
@@ -58,7 +72,9 @@ export default function Projects({ token, onLogout }) {
 
     try {
       await deleteProject(token, selectedProjectId);
+
       setSelectedProjectId(null);
+
       load();
     } catch (err) {
       setError(err.message);
@@ -67,16 +83,20 @@ export default function Projects({ token, onLogout }) {
 
   const handleSearch = async () => {
     if (!searchId) {
+      setError("");
       load();
       return;
     }
 
     try {
-      const res = await fetch(`http://localhost:8080/projects/${searchId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `http://localhost:8080/projects/${searchId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await res.json();
 
@@ -84,28 +104,22 @@ export default function Projects({ token, onLogout }) {
         throw new Error(data.error);
       }
 
+      setError("");
       setProjects([data]);
     } catch (err) {
       setError(err.message);
     }
   };
 
-  if (selectedProject) {
-    return (
-      <Tasks
-        token={token}
-        project={selectedProject}
-        onBack={() => setSelectedProject(null)}
-      />
-    );
-  }
-
   return (
     <div className="container">
       <div className="header">
-        <h2>Projects</h2>
+        <h2>User Projects</h2>
 
-        <button className="logout" onClick={onLogout}>
+        <button
+          className="logout"
+          onClick={onLogout}
+        >
           Logout
         </button>
       </div>
@@ -113,21 +127,29 @@ export default function Projects({ token, onLogout }) {
       <div className="form">
         <input
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) =>
+            setTitle(e.target.value)
+          }
           placeholder="New project"
         />
 
-        <button onClick={handleCreate}>Create</button>
+        <button onClick={handleCreate}>
+          Create
+        </button>
       </div>
 
       <div className="search-block">
         <input
           placeholder="Search project by ID"
           value={searchId}
-          onChange={(e) => setSearchId(e.target.value)}
+          onChange={(e) =>
+            setSearchId(e.target.value)
+          }
         />
 
-        <button onClick={handleSearch}>Search</button>
+        <button onClick={handleSearch}>
+          Search
+        </button>
       </div>
 
       {error && <p className="error">{error}</p>}
@@ -136,7 +158,11 @@ export default function Projects({ token, onLogout }) {
         {projects.map((p) => (
           <li
             key={p.id}
-            className={selectedProjectId === p.id ? "selected" : ""}
+            className={
+              selectedProjectId === p.id
+                ? "selected"
+                : ""
+            }
             onClick={() => setSelectedProjectId(p.id)}
           >
             <div className="row">
@@ -144,12 +170,18 @@ export default function Projects({ token, onLogout }) {
                 <>
                   <input
                     value={editingTitle}
-                    onChange={(e) => setEditingTitle(e.target.value)}
+                    onChange={(e) =>
+                      setEditingTitle(
+                        e.target.value
+                      )
+                    }
                   />
 
                   <button
                     className="small"
-                    onClick={() => handleUpdate(p.id)}
+                    onClick={() =>
+                      handleUpdate(p.id)
+                    }
                   >
                     Save
                   </button>
@@ -158,25 +190,36 @@ export default function Projects({ token, onLogout }) {
                 <>
                   <div
                     className="project-info"
-                    onClick={() => setSelectedProjectId(p.id)}
                   >
-                    <span>
-                      #{p.id} — {p.title}
-                    </span>
+                    <div className="item-content">
+                      <div className="item-title">
+                        {p.title}
+                      </div>
+
+                      <div className="item-meta">
+                        ID: {p.id}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="actions">
                     <button
                       className="small"
-                      onClick={() => setSelectedProject(p)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/projects/${p.id}/tasks`)
+                      }}
                     >
                       Open
                     </button>
+
                     <button
                       className="small"
                       onClick={() => {
                         setEditingId(p.id);
-                        setEditingTitle(p.title);
+                        setEditingTitle(
+                          p.title
+                        );
                       }}
                     >
                       Edit
@@ -189,7 +232,10 @@ export default function Projects({ token, onLogout }) {
         ))}
       </ul>
 
-      <button className="danger" onClick={handleDelete}>
+      <button
+        className="danger"
+        onClick={handleDelete}
+      >
         Delete
       </button>
     </div>

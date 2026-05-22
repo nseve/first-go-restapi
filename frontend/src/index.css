@@ -141,12 +141,6 @@ li:hover {
   gap: 12px;
 }
 
-.row span {
-  flex: 1;
-  cursor: pointer;
-  word-break: break-word;
-}
-
 .row input {
   flex: 1;
 }
@@ -226,5 +220,20 @@ li:hover {
 
 .project-info {
   flex: 1;
-  cursor: pointer;
+}
+
+.item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.item-meta {
+  font-size: 13px;
+  color: #6b7280;
 }

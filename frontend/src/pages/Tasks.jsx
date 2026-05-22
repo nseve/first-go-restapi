@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { useNavigate, useParams } from "react-router-dom";
+
 import {
   getTasks,
   createTask,
@@ -7,8 +9,15 @@ import {
   deleteTask,
 } from "../api";
 
-export default function Tasks({ token, project, onBack }) {
+export default function Tasks({ token }) {
+  const navigate = useNavigate();
+
+  const { id } = useParams();
+
+  const projectId = Number(id);
+
   const [tasks, setTasks] = useState([]);
+
   const [title, setTitle] = useState("");
   const [duration, setDuration] = useState("");
 
@@ -17,13 +26,15 @@ export default function Tasks({ token, project, onBack }) {
   const [editingDuration, setEditingDuration] = useState("");
 
   const [selectedTaskId, setSelectedTaskId] = useState(null);
+
   const [searchId, setSearchId] = useState("");
 
   const [error, setError] = useState("");
 
   const load = async () => {
     try {
-      const data = await getTasks(token, project.id);
+      const data = await getTasks(token, projectId);
+
       setError("");
       setTasks(data);
     } catch (err) {
@@ -37,9 +48,16 @@ export default function Tasks({ token, project, onBack }) {
 
   const handleCreate = async () => {
     try {
-      await createTask(token, project.id, title, Number(duration));
+      await createTask(
+        token,
+        projectId,
+        title,
+        Number(duration)
+      );
+
       setTitle("");
       setDuration("");
+
       load();
     } catch (err) {
       setError(err.message);
@@ -56,6 +74,7 @@ export default function Tasks({ token, project, onBack }) {
       );
 
       setEditingId(null);
+
       load();
     } catch (err) {
       setError(err.message);
@@ -67,7 +86,9 @@ export default function Tasks({ token, project, onBack }) {
 
     try {
       await deleteTask(token, selectedTaskId);
+
       setSelectedTaskId(null);
+
       load();
     } catch (err) {
       setError(err.message);
@@ -81,11 +102,14 @@ export default function Tasks({ token, project, onBack }) {
     }
 
     try {
-      const res = await fetch(`http://localhost:8080/tasks/${searchId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `http://localhost:8080/tasks/${searchId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await res.json();
 
@@ -93,6 +117,7 @@ export default function Tasks({ token, project, onBack }) {
         throw new Error(data.error);
       }
 
+      setError("");
       setTasks([data]);
     } catch (err) {
       setError(err.message);
@@ -101,11 +126,14 @@ export default function Tasks({ token, project, onBack }) {
 
   return (
     <div className="container">
-      <button className="back" onClick={onBack}>
+      <button
+        className="back"
+        onClick={() => navigate("/projects")}
+      >
         ← Back
       </button>
 
-      <h2>{project.title}</h2>
+      <h2>Project Tasks</h2>
 
       <div className="form">
         <input
@@ -115,13 +143,15 @@ export default function Tasks({ token, project, onBack }) {
         />
 
         <input
-          placeholder="Duration"
           type="number"
+          placeholder="Duration"
           value={duration}
           onChange={(e) => setDuration(e.target.value)}
         />
 
-        <button onClick={handleCreate}>Add Task</button>
+        <button onClick={handleCreate}>
+          Add Task
+        </button>
       </div>
 
       <div className="search-block">
@@ -131,7 +161,9 @@ export default function Tasks({ token, project, onBack }) {
           onChange={(e) => setSearchId(e.target.value)}
         />
 
-        <button onClick={handleSearch}>Search</button>
+        <button onClick={handleSearch}>
+          Search
+        </button>
       </div>
 
       {error && <p className="error">{error}</p>}
@@ -140,7 +172,11 @@ export default function Tasks({ token, project, onBack }) {
         {tasks.map((t) => (
           <li
             key={t.id}
-            className={selectedTaskId === t.id ? "selected" : ""}
+            className={
+              selectedTaskId === t.id
+                ? "selected"
+                : ""
+            }
             onClick={() => setSelectedTaskId(t.id)}
           >
             <div className="row">
@@ -148,27 +184,39 @@ export default function Tasks({ token, project, onBack }) {
                 <>
                   <input
                     value={editingTitle}
-                    onChange={(e) => setEditingTitle(e.target.value)}
+                    onChange={(e) =>
+                      setEditingTitle(e.target.value)
+                    }
                   />
 
                   <input
                     type="number"
                     value={editingDuration}
-                    onChange={(e) => setEditingDuration(e.target.value)}
+                    onChange={(e) =>
+                      setEditingDuration(e.target.value)
+                    }
                   />
 
                   <button
                     className="small"
-                    onClick={() => handleUpdate(t.id)}
+                    onClick={() =>
+                      handleUpdate(t.id)
+                    }
                   >
                     Save
                   </button>
                 </>
               ) : (
                 <>
-                  <span>
-                    #{t.id} — {t.title} — {t.duration} min
-                  </span>
+                  <div className="item-content">
+                    <div className="item-title">
+                      {t.title}
+                    </div>
+
+                    <div className="item-meta">
+                      ID: {t.id} • [{t.duration} min]
+                    </div>
+                  </div>
 
                   <button
                     className="small"
@@ -187,7 +235,10 @@ export default function Tasks({ token, project, onBack }) {
         ))}
       </ul>
 
-      <button className="danger" onClick={handleDelete}>
+      <button
+        className="danger"
+        onClick={handleDelete}
+      >
         Delete
       </button>
     </div>
