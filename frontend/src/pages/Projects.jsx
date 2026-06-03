@@ -2,12 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import {
-  getProjects,
-  createProject,
-  updateProject,
-  deleteProject,
-} from "../api";
+import { getProjects, createProject, updateProject, deleteProject } from "../api";
 
 export default function Projects({ token, onLogout }) {
   const navigate = useNavigate();
@@ -142,9 +137,7 @@ export default function Projects({ token, onLogout }) {
         <input
           placeholder="Search project by ID"
           value={searchId}
-          onChange={(e) =>
-            setSearchId(e.target.value)
-          }
+          onChange={(e) => setSearchId(e.target.value)}
         />
 
         <button onClick={handleSearch}>
@@ -158,11 +151,7 @@ export default function Projects({ token, onLogout }) {
         {projects.map((p) => (
           <li
             key={p.id}
-            className={
-              selectedProjectId === p.id
-                ? "selected"
-                : ""
-            }
+            className={selectedProjectId === p.id ? "selected" : ""}
             onClick={() => setSelectedProjectId(p.id)}
           >
             <div className="row">
@@ -170,27 +159,19 @@ export default function Projects({ token, onLogout }) {
                 <>
                   <input
                     value={editingTitle}
-                    onChange={(e) =>
-                      setEditingTitle(
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => setEditingTitle(e.target.value)}
                   />
 
                   <button
                     className="small"
-                    onClick={() =>
-                      handleUpdate(p.id)
-                    }
+                    onClick={() => handleUpdate(p.id)}
                   >
                     Save
                   </button>
                 </>
               ) : (
                 <>
-                  <div
-                    className="project-info"
-                  >
+                  <div className="project-info">
                     <div className="item-content">
                       <div className="item-title">
                         {p.title}
@@ -217,9 +198,7 @@ export default function Projects({ token, onLogout }) {
                       className="small"
                       onClick={() => {
                         setEditingId(p.id);
-                        setEditingTitle(
-                          p.title
-                        );
+                        setEditingTitle(p.title);
                       }}
                     >
                       Edit
@@ -232,10 +211,7 @@ export default function Projects({ token, onLogout }) {
         ))}
       </ul>
 
-      <button
-        className="danger"
-        onClick={handleDelete}
-      >
+      <button className="danger" onClick={handleDelete}>
         Delete
       </button>
     </div>

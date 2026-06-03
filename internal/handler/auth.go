@@ -31,61 +31,33 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-func (h *AuthHandler) Register(
-	w http.ResponseWriter,
-	r *http.Request,
-) {
+func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req AuthRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.WriteError(
-			w,
-			http.StatusBadRequest,
-			"invalid request body",
-		)
+		response.WriteError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
 	_, err := mail.ParseAddress(req.Email)
 	if err != nil || len(req.Password) < 6 {
-		response.WriteError(
-			w,
-			http.StatusBadRequest,
-			"invalid email or password",
-		)
+		response.WriteError(w, http.StatusBadRequest, "invalid email or password")
 		return
 	}
 
-	err = h.service.Register(
-		req.Email,
-		req.Password,
-	)
+	err = h.service.Register(req.Email, req.Password)
 
 	if errors.Is(err, service.ErrUserAlreadyExists) {
-		response.WriteError(
-			w,
-			http.StatusConflict,
-			"user already exists",
-		)
+		response.WriteError(w, http.StatusConflict, "user already exists")
 		return
 	}
 
 	if err != nil {
-		response.WriteError(
-			w,
-			http.StatusInternalServerError,
-			"failed to create user",
-		)
+		response.WriteError(w, http.StatusInternalServerError, "failed to create user")
 		return
 	}
 
-	response.WriteJSON(
-		w,
-		http.StatusCreated,
-		MessageResponse{
-			Message: "user created",
-		},
-	)
+	response.WriteJSON(w, http.StatusCreated, MessageResponse{Message: "user created"})
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
@@ -99,28 +71,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	token, err := h.service.Login(req.Email, req.Password)
 
 	if errors.Is(err, service.ErrInvalidCredentials) {
-		response.WriteError(
-			w,
-			http.StatusUnauthorized,
-			"invalid credentials",
-		)
+		response.WriteError(w, http.StatusUnauthorized, "invalid credentials")
 		return
 	}
 
 	if err != nil {
-		response.WriteError(
-			w,
-			http.StatusInternalServerError,
-			"login failed",
-		)
+		response.WriteError(w, http.StatusInternalServerError, "login failed")
 		return
 	}
 
-	response.WriteJSON(
-		w,
-		http.StatusOK,
-		LoginResponse{
-			Token: token,
-		},
-	)
+	response.WriteJSON(w, http.StatusOK, LoginResponse{Token: token})
 }

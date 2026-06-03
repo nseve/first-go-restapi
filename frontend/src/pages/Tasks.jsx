@@ -172,11 +172,7 @@ export default function Tasks({ token }) {
         {tasks.map((t) => (
           <li
             key={t.id}
-            className={
-              selectedTaskId === t.id
-                ? "selected"
-                : ""
-            }
+            className={selectedTaskId === t.id ? "selected" : ""}
             onClick={() => setSelectedTaskId(t.id)}
           >
             <div className="row">
@@ -184,24 +180,18 @@ export default function Tasks({ token }) {
                 <>
                   <input
                     value={editingTitle}
-                    onChange={(e) =>
-                      setEditingTitle(e.target.value)
-                    }
+                    onChange={(e) => setEditingTitle(e.target.value)}
                   />
 
                   <input
                     type="number"
                     value={editingDuration}
-                    onChange={(e) =>
-                      setEditingDuration(e.target.value)
-                    }
+                    onChange={(e) => setEditingDuration(e.target.value)}
                   />
 
                   <button
                     className="small"
-                    onClick={() =>
-                      handleUpdate(t.id)
-                    }
+                    onClick={() => handleUpdate(t.id)}
                   >
                     Save
                   </button>
